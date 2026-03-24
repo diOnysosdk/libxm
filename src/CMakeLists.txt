@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(libxm LANGUAGES C)
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 add_library(xm_common INTERFACE)
@@ -25,9 +25,13 @@ set_target_properties(xm PROPERTIES
 # Bump this when breaking public ABI
 set_target_properties(xm PROPERTIES SOVERSION 11)
 
-find_library(MATH_LIBRARY m REQUIRED)
 target_include_directories(xm SYSTEM PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(xm PRIVATE xm_common ${MATH_LIBRARY})
+if(WIN32)
+	target_link_libraries(xm PRIVATE xm_common)
+else()
+	find_library(MATH_LIBRARY m REQUIRED)
+	target_link_libraries(xm PRIVATE xm_common ${MATH_LIBRARY})
+endif()
 
 function(option_and_define name description default_value)
 	option(${name} ${description} ${default_value})
